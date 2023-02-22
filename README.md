@@ -13,3 +13,4 @@ I assume that you installed docker on your OS. Clone the project from github the
 
 - type ```docker compose up -d```
 - Visit ```http://127.0.0.1:8000/swagger``` to watch the api documentation.
+- for development run ```python manage.py runserver --settings=safariBackend.settings.dev```.
