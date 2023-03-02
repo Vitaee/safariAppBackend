@@ -11,4 +11,4 @@ class SafariCreateSerializer(serializers.ModelSerializer):
 class SafariSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Safari
-        fields = ['tour_data']
+        fields = '__all__'
