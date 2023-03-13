@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.postgres.search import SearchQuery, SearchVector
 from psycopg2.extras import NumericRange
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view
+from drf_spectacular.types import OpenApiTypes
 
 class SafariCreateView(APIView):
     serializer_class = SafariCreateSerializer
@@ -33,7 +34,20 @@ class SafariAllView(ModelViewSet):
 @extend_schema_view(
     get=extend_schema(
         parameters=[
-            OpenApiParameter(name='price', description='Enter price range', type=str),
+             OpenApiParameter(
+                name='price_min',
+                description='Enter minimum price default is 400',
+                required=False,
+                type=OpenApiTypes.NUMBER,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name='price_max',
+                description='Enter maximum price default is 1500',
+                required=False,
+                type=OpenApiTypes.NUMBER,
+                location=OpenApiParameter.QUERY,
+            ),
             OpenApiParameter(name='query', description='Enter text to made search', type=str)
         ]
     )
@@ -43,16 +57,18 @@ class SafariSearchView(generics.ListAPIView):
     
     def get_queryset(self):
         search_query = self.request.query_params.get('query', '')
-        price_query = self.request.query_params.get('price', '')
+        price_min = int(self.request.query_params.get('price_min', 400))
+        price_max = int(self.request.query_params.get('price_max', 1500))
         
         if search_query:
             vector = SearchVector('tour_data', 'inclusions_data', 'getting_there_data', 'day_by_day')
-            query = SearchQuery('Masai Mara')
+            query = SearchQuery(search_query)
             return Safari.search_by_json_fields(vector=vector, query=query)
 
-        if price_query:
-            price_range = (500, 1000) # Filter by price between $500 and $1000
-            max_price_range = (800, 1500) # Filter by max_price between $800 and $1500
+        if price_min or price_max:
+            Safari.validate_price_range(price_min, price_max)
+            price_range = (price_min, 1000)
+            max_price_range = (600, price_max)
 
             return Safari.search_by_price_and_max_price(price_range, max_price_range)
 

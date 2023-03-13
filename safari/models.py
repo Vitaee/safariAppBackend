@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Q
 from django.contrib.postgres.search import SearchRank
+from rest_framework.exceptions import ValidationError
 
 
 class Safari(models.Model):
@@ -17,7 +18,7 @@ class Safari(models.Model):
     day_by_day = models.JSONField()
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["id"]
         verbose_name = "Safari Tour"
 
     def __str__(self):
@@ -30,3 +31,12 @@ class Safari(models.Model):
     @staticmethod
     def search_by_json_fields(vector, query):
         return Safari.objects.annotate(rank=SearchRank(vector, query)).filter(rank__gte=0.1)
+
+    @staticmethod
+    def validate_price_range(price_min, price_max):
+        if price_min is not None and price_min < 300:
+            raise ValidationError("price_min should be at least 300")
+        if price_max is not None and price_max < 400:
+            raise ValidationError("price_max should be at least 400")
+        if price_min is not None and price_max is not None and price_min > price_max:
+            raise ValidationError("price_min should be less than or equal to price_max")
