@@ -1,14 +1,30 @@
 version: '3.9'
 
 services:
-  web:
+  web1:
     build: .
+    container_name: web1
     command: >
       sh -c " python manage.py makemigrations --settings=safariBackend.settings.test &&
               python manage.py migrate --settings=safariBackend.settings.test && 
-              python manage.py runserver --settings=safariBackend.settings.test 0.0.0.0:8000"
+              python manage.py runserver --settings=safariBackend.settings.test 0.0.0.0:8001"
     ports:
-      - "8000:8000"
+      - "8001:8001"
+    env_file:
+      - .env.test
+    networks:
+      - app-network
+    restart: on-failure
+
+  web2:
+    build: .
+    container_name: web2
+    command: >
+      sh -c " python manage.py makemigrations --settings=safariBackend.settings.test &&
+              python manage.py migrate --settings=safariBackend.settings.test && 
+              python manage.py runserver --settings=safariBackend.settings.test 0.0.0.0:8002"
+    ports:
+      - "8002:8002"
     env_file:
       - .env.test
     networks:
@@ -22,7 +38,8 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - web
+      - web1
+      - web2
     networks:
       - app-network
     restart: on-failure
