@@ -5,7 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    command: gunicorn safariBackend.wsgi:application --bind 0.0.0.0:6000
+    command: >
+      sh -c "python manage.py makemigrations --settings=safariBackend.settings.production &&
+             python manage.py migrate --settings=safariBackend.settings.production &&
+             gunicorn safariBackend.wsgi:application --bind 0.0.0.0:6000"
     env_file:
       - .env.production
     volumes:
