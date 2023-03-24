@@ -3,19 +3,24 @@ from datetime import timedelta
 from pathlib import Path
 from decouple import Config, RepositoryEnv
 from django.core.management.utils import get_random_secret_key
+from django.conf import settings
+
 
 # generating and printing the SECRET_KEY
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+settings_module_name = os.environ.get('DJANGO_SETTINGS_MODULE').split('.')[-1]
 
-DOTENV_FILE=f'{BASE_DIR}/.env.development'
+DOTENV_FILE = f'{BASE_DIR}/.env.{settings_module_name}'
+
 config = Config(RepositoryEnv(DOTENV_FILE))
+
 
 try:
     SECRET_KEY = config.get('SECRET_KEY')
-except:
+except Exception as e:
+    print(e)
     SECRET_KEY = get_random_secret_key()
-
 
 # Application definition
 
