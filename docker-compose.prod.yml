@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    command: gunicorn safariBackend.wsgi:application -w 4 -k uvicorn.workers.UvicornWorker
+    command: gunicorn safariBackend.wsgi:application --bind 0.0.0.0:6000
     env_file:
       - .env.production
     volumes:

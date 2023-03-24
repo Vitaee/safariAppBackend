@@ -34,4 +34,4 @@ ENV DJANGO_SETTINGS_MODULE=safariBackend.settings.production
 RUN python manage.py collectstatic --noinput
 
 # Run the command to start the server
-CMD ["gunicorn", "--bind", "0.0.0.0:6000", "safariBackend.wsgi:application"]
+CMD ["gunicorn", "safariBackend.wsgi:application", "--bind", "0.0.0.0:6000"]
