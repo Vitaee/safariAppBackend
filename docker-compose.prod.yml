@@ -2,23 +2,22 @@ version: '3.9'
 
 services:
   web:
-    build: .
-    command: >
-      sh -c " python manage.py makemigrations --settings=safariBackend.settings.test &&
-              python manage.py migrate --settings=safariBackend.settings.test && 
-              python manage.py runserver --settings=safariBackend.settings.test 0.0.0.0:8000"
-
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: gunicorn safariBackend.wsgi:application -w 4 -k uvicorn.workers.UvicornWorker
     env_file:
-      - .env.test
-
+      - .env.production
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    networks:
+      - app-network
     deploy:
       replicas: 2
       placement:
         constraints:
           - node.role == worker
-    
-    networks:
-      - app-network
     restart: on-failure
 
   nginx:
@@ -27,11 +26,17 @@ services:
       - "70:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/app/static
+      - media_volume:/app/media
     depends_on:
       - web
     networks:
       - app-network
     restart: on-failure
+
+volumes:
+  static_volume:
+  media_volume:
 
 networks:
   app-network:
