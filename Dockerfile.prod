@@ -11,7 +11,8 @@ COPY . /source
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
-RUN apt-get update && apt-get install -y build-essential
+RUN apt-get update && apt-get install -y build-essential \
+    && apt install -y python3-dev libpq-dev
 
 RUN pip install -U pip \
     && pip install poetry
@@ -21,7 +22,7 @@ RUN poetry config virtualenvs.create false \
 
 
 # Set the environment variable for Django settings
-ENV DJANGO_SETTINGS_MODULE=safariBackend.settings.prod
+ENV DJANGO_SETTINGS_MODULE=safariBackend.settings.production
 
 # Collect the static files
 RUN python manage.py collectstatic --noinput
