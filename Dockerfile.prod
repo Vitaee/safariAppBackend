@@ -4,9 +4,9 @@ FROM python:3.9-slim-buster
 EXPOSE 6000
 
 # Set the working directory to /code
-WORKDIR /source
+WORKDIR /app
 
-COPY . /source
+COPY . /app
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
