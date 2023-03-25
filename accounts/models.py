@@ -10,6 +10,7 @@ class User(AbstractBaseUser):
         max_length=40,
         unique=True,
     )
+    email = models.EmailField(verbose_name=_('email'), max_length=90, null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     objects = UserManager()
