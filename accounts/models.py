@@ -11,6 +11,7 @@ class User(AbstractBaseUser):
         unique=True,
     )
     email = models.EmailField(verbose_name=_('email'), max_length=90, null=True)
+    profile_image = models.TextField(verbose_name=_('profile image'), null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     objects = UserManager()

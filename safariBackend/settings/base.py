@@ -20,7 +20,8 @@ try:
     SECRET_KEY = config.get('SECRET_KEY')
 except Exception as e:
     print(e)
-    SECRET_KEY = get_random_secret_key()
+    SECRET_KEY = None
+    raise "Secret Key is missing in your env fie!"
 
 # Application definition
 
@@ -132,4 +133,13 @@ SPECTACULAR_SETTINGS = {
 }
 
 LOCALE_PATHS = os.path.join(BASE_DIR, 'locale/'),
+AWS_ACCESS_KEY_ID = config.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config.get('AWS_SECRET_ACCESS_KEY')
+AWS_REGION_NAME = config.get('AWS_REGION_NAME')
+AWS_S3_BUCKET_NAME = config.get('AWS_S3_BUCKET_NAME')
 
+CELERY_BROKER_URL = config.get('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = config.get('CELERY_RESULT_BACKEND')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
