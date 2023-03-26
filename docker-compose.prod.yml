@@ -22,6 +22,30 @@ services:
         constraints:
           - node.role == worker
     restart: on-failure
+  
+  celery:
+    user: celeryuser
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    command: celery -A safariBackend worker --loglevel=info
+    env_file:
+      - .env.test
+    networks:
+      - app-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
+    restart: on-failure
+  
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
 
   nginx:
     image: nginx:latest
@@ -40,6 +64,7 @@ services:
 volumes:
   static_volume:
   media_volume:
+  redis_data:
 
 networks:
   app-network:

@@ -1,8 +1,6 @@
 FROM python:3.10
 
-EXPOSE 8000
-EXPOSE 8001
-EXPOSE 8002
+EXPOSE 6000-6003
 
 WORKDIR /source
 
@@ -16,5 +14,7 @@ RUN pip install -U pip \
 
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi
+
+RUN adduser --disabled-password --gecos "" celeryuser
 
 CMD ["python","manage.py", "runserver", "--settings=safariBackend.settings.test", "0.0.0.0:6000"]

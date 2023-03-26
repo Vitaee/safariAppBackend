@@ -11,8 +11,17 @@ s3 = boto3.client(
 
 def upload_file_to_s3(file_obj, file_name):
     try:
-        s3.upload_fileobj(file_obj, settings.AWS_S3_BUCKET_NAME, file_name)
-        url = f"https://{settings.AWS_S3_BUCKET_NAME}.s3.{settings.AWS_REGION_NAME}.amazonaws.com/{file_name}"
+        content_type = file_obj['content_type']
+        file_content = file_obj['chunks']
+
+        # Upload the file to AWS S3
+        s3.put_object(
+            Bucket=settings.AWS_S3_BUCKET_NAME,
+            Key='safariApp/' + file_name,
+            Body=b''.join(file_content),
+            ContentType=content_type,
+        )
+        url = f"https://{settings.AWS_S3_BUCKET_NAME}.s3.{settings.AWS_REGION_NAME}.amazonaws.com/safariApp/{file_name}"
         return url
     except ClientError as e:
         print(e)

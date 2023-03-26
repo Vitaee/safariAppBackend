@@ -37,12 +37,14 @@ class UserRegisterView(APIView):
             user = serializer.save()
             if 'profile_image' in request.FILES:
                 file_obj = request.FILES['profile_image']
+                file_data = {
+                    'name': file_obj.name,
+                    'content_type': file_obj.content_type,
+                    'size': file_obj.size,
+                    'chunks': list(file_obj.chunks()),
+                }
                 file_name = f"{user.username}_{file_obj.name}"
-                #upload_to_s3_task.delay(file_obj, file_name, user.id)
-                url = upload_file_to_s3(file_obj, file_name)
-                if url:
-                    user.profile_image = url
-                    user.save()
+                upload_to_s3_task.delay(file_data, file_name, user.id)
             tokens = RefreshToken.for_user(user)
             return Response({'refresh': str(tokens), 'access': str(tokens.access_token)}, status.HTTP_201_CREATED)
 

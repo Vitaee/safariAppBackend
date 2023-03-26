@@ -29,6 +29,7 @@ RUN poetry config virtualenvs.create false \
 
 # Set the environment variable for Django settings
 ENV DJANGO_SETTINGS_MODULE=safariBackend.settings.production
+RUN adduser --disabled-password --gecos "" celeryuser
 
 # Collect the static files
 RUN python manage.py collectstatic --noinput
