@@ -27,7 +27,7 @@ services:
     user: celeryuser
     build:
       context: .
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile.prod
     command: celery -A safariBackend worker --loglevel=info
     env_file:
       - .env.production
