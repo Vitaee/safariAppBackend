@@ -27,10 +27,10 @@ services:
     user: celeryuser
     build:
       context: .
-      dockerfile: Dockerfile.test
+      dockerfile: Dockerfile.production
     command: celery -A safariBackend worker --loglevel=info
     env_file:
-      - .env.test
+      - .env.production
     networks:
       - app-network
     deploy:
