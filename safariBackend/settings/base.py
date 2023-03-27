@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     
     'accounts.apps.AccountsConfig',
     'safari.apps.SafariConfig',
+    'scraper.apps.ScraperConfig',
 
     'rest_framework',
     'drf_spectacular',
@@ -123,6 +124,21 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG', # change to DEBUG for more verbose output
+    }
+}
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'safari API',
     'DESCRIPTION': 'an API doc for safari app project',
@@ -140,7 +156,3 @@ AWS_S3_BUCKET_NAME = config.get('AWS_S3_BUCKET_NAME')
 
 CELERY_BROKER_URL = config.get('CELERY_BROKER_URL')
 CELERY_RESULT_BACKEND = config.get('CELERY_RESULT_BACKEND')
-
-#CELERY_ACCEPT_CONTENT = ['json']
-#CELERY_TASK_SERIALIZER = 'json'
-#CELERY_RESULT_SERIALIZER = 'json'

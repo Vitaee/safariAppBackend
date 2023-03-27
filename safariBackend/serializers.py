@@ -1,10 +1,12 @@
-import json
+import json, asyncio
 from base64 import b64decode, b64encode
 
 class BytesJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, bytes):
             return {'__class__': 'bytes', '__value__': b64encode(o).decode('ascii')}
+        elif asyncio.iscoroutine(o):
+            return None 
         return super().default(o)
 
 
