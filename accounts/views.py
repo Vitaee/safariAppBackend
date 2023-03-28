@@ -1,12 +1,13 @@
-from django.shortcuts import render
 from accounts.serializers import UserSerializer, UserRegisterSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .utils import upload_file_to_s3
 from .tasks import upload_to_s3_task
+from .models import User
+from rest_framework.viewsets import ModelViewSet
+from safari.paginations import SafariPagination
 
 class UserView(APIView):
     permission_classes = [IsAuthenticated]
@@ -51,3 +52,12 @@ class UserRegisterView(APIView):
         except Exception as e:
             print(e)
             return Response({'message': 'Unexpected error while registering you!'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class UserAllView(ModelViewSet):
+    permission_classes = []
+    serializer_class = UserSerializer
+    pagination_class = SafariPagination
+
+    def get_queryset(self):
+        return User.objects.all().order_by('id')
+     
