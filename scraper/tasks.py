@@ -1,4 +1,4 @@
-import logging, aiohttp, asyncio, re
+import logging, aiohttp, asyncio, re, requests
 from celery import shared_task
 from safari.models import Safari
 from bs4 import BeautifulSoup
@@ -19,7 +19,7 @@ class ScraperBot:
 
     async def scrape_resource_links(self):
         async with aiohttp.ClientSession() as session:
-            for counter in range(1, 2):
+            for counter in range(4, 6):
                 async with session.get(f"{self.base_url_home}{counter}") as response:
                     html_content = await response.text()
                     soup = BeautifulSoup(html_content, 'html.parser')
@@ -196,6 +196,13 @@ async def scrape_data():
     safaris = ScraperBot()
     await safaris.scrape_resource_links()
 
-@shared_task
-def trigger_scraper():
+
+@shared_task(bind=True, autoretry_for=(Exception,), retry_kwargs={'max_retries': 2, 'countdown': 5})
+def trigger_scraper(self):
     asyncio.run(scrape_data())
+
+@shared_task
+def cron_scraper():
+    req = requests.get("http://127.0.0.1:8000/api/scraper/run")
+    if req.status_code == 200:
+        logger.debug("[LOG] Scraper is triggered by cron.")

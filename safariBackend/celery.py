@@ -3,6 +3,7 @@ from celery import Celery
 from kombu.serialization import register
 from .serializers import BytesJSONEncoder, BytesJSONDecoder
 from kombu.utils.json import loads, dumps
+from celery.schedules import crontab
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'safariBackend.settings.test')
 
@@ -29,4 +30,11 @@ app.conf.task_serializers = {
 app.conf.result_serializers = {
     'json': loads,
     'json_bytes': 'json_bytes'
+}
+
+app.conf.beat_schedule = {
+    'sent-get-request-every-midnight': {
+        'task': 'scraper.tasks.cron_scraper',
+        'schedule': crontab(minute=0, hour=0),
+    },
 }

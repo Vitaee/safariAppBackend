@@ -15,6 +15,7 @@ DOTENV_FILE = f'{BASE_DIR}/.env.{settings_module_name}'
 
 config = Config(RepositoryEnv(DOTENV_FILE))
 
+CSRF_TRUSTED_ORIGINS = ["http://localhost", "http://127.0.0.1", "http://127.0.0.1:70", "http://185.250.192.69", "http://185.250.192.69:70"]
 
 try:
     SECRET_KEY = config.get('SECRET_KEY')

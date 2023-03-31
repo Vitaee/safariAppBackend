@@ -1,38 +1,30 @@
 # Use an official Python runtime as a parent image
 FROM python:3.9-slim-buster
 
-EXPOSE 6000
+EXPOSE 6000-6003
 
 # Set the working directory to /code
-WORKDIR /app
+WORKDIR /source
 
-COPY . /app
+COPY . /source
 
-COPY ./requirements.txt /app/requirements.txt
+COPY ./requirements.txt /source/requirements.txt
 
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
+ENV DJANGO_SETTINGS_MODULE=safariBackend.settings.production
+
 
 RUN apt-get update && apt-get install -y build-essential \
-    && apt install -y python3-dev libpq-dev
-
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-RUN pip install -U pip \
-    && pip install poetry
-
-RUN poetry config virtualenvs.create false \
+    && apt install -y python3-dev libpq-dev \
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install poetry \
+    && poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi
 
 
-# Set the environment variable for Django settings
-ENV DJANGO_SETTINGS_MODULE=safariBackend.settings.production
-RUN adduser --disabled-password --gecos "" celeryuser
+RUN adduser --disabled-password --gecos "" celeryuser \
+    && python manage.py collectstatic --noinput
 
-# Collect the static files
-RUN python manage.py collectstatic --noinput
-
-# Run the command to start the server
 CMD ["gunicorn", "safariBackend.wsgi:application", "--bind", "0.0.0.0:6000"]
