@@ -3,6 +3,7 @@ from celery import shared_task
 from safari.models import Safari
 from bs4 import BeautifulSoup
 from asgiref.sync import sync_to_async
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -203,6 +204,6 @@ def trigger_scraper(self):
 
 @shared_task
 def cron_scraper():
-    req = requests.get("http://127.0.0.1:8000/api/scraper/run")
+    req = requests.get(f"http://{settings.SCRAPER_BASE_URL}/api/scraper/run")
     if req.status_code == 200:
         logger.debug("[LOG] Scraper is triggered by cron.")
