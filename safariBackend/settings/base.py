@@ -42,7 +42,8 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'drf_spectacular',
-    'django_cleanup'
+    'django_cleanup',
+    'django_redis'
 
 ]
 
@@ -139,6 +140,17 @@ LOGGING = {
     'root': {
         'handlers': ['console'],
         'level': 'DEBUG', # change to DEBUG for more verbose output
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://172.17.0.5:6379/4",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "KEY_PREFIX": "mycache_",
     }
 }
 

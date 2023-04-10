@@ -9,12 +9,8 @@ COPY . /source
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
-RUN pip install -U pip \
-    && pip install poetry \
+RUN pip install poetry \
     && poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi \
     && adduser --disabled-password --gecos "" celeryuser \
     && python manage.py collectstatic --noinput --clear --settings=safariBackend.settings.test 
-
-
-CMD ["python","manage.py", "runserver", "--settings=safariBackend.settings.test", "0.0.0.0:6000"]

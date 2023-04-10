@@ -8,9 +8,11 @@ from safari.paginations import SafariPagination
 from rest_framework.viewsets import ModelViewSet
 from django.shortcuts import get_object_or_404
 from django.contrib.postgres.search import SearchQuery, SearchVector
-from psycopg2.extras import NumericRange
+from django.views.decorators.cache import cache_page
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view
 from drf_spectacular.types import OpenApiTypes
+from django.core.cache import cache
+from django.utils.decorators import method_decorator
 
 class SafariCreateView(APIView):
     serializer_class = SafariCreateSerializer
@@ -21,16 +23,19 @@ class SafariCreateView(APIView):
         serializer.save()
         return Response({'message': 'Success!'}, status=status.HTTP_201_CREATED)
 
+
 class SafariAllView(ModelViewSet):
     serializer_class = SafariCreateSerializer
     pagination_class = SafariPagination
 
-    def get_object(self):
-        return get_object_or_404(Safari)
-
-    def get_queryset(self):
-        return Safari.objects.all().order_by('id')
-
+    @method_decorator(cache_page(60 * 15, key_prefix='safari')) # cache for 15 minutes
+    def list(self, request, *args, **kwargs):
+        queryset = Safari.objects.all().order_by('-id')
+        page = self.paginate_queryset(queryset)
+        serializer = SafariCreateSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+    
+    
 @extend_schema_view(
     get=extend_schema(
         parameters=[
