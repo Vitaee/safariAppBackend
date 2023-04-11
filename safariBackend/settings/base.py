@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'django_cleanup',
-    'django_redis'
+    'django_redis',
+    'django_elasticsearch_dsl'
 
 ]
 
@@ -146,12 +147,18 @@ LOGGING = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": config.get('LOCATION_CACHE_URL_DOCKER'),
+        "LOCATION": config.get('LOCATION_CACHE_URL'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
         "KEY_PREFIX": "mycache_",
     }
+}
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://172.17.0.6:9200/'
+    },
 }
 
 SPECTACULAR_SETTINGS = {

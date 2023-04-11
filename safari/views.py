@@ -1,4 +1,3 @@
-from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics
@@ -6,13 +5,13 @@ from safari.models import Safari
 from safari.serializers import SafariCreateSerializer, SafariSearchSerializer
 from safari.paginations import SafariPagination
 from rest_framework.viewsets import ModelViewSet
-from django.shortcuts import get_object_or_404
-from django.contrib.postgres.search import SearchQuery, SearchVector
 from django.views.decorators.cache import cache_page
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view
 from drf_spectacular.types import OpenApiTypes
-from django.core.cache import cache
 from django.utils.decorators import method_decorator
+from elasticsearch_dsl import Q, Search, Nested
+from elasticsearch_dsl.query import MultiMatch
+
 
 class SafariCreateView(APIView):
     serializer_class = SafariCreateSerializer
@@ -64,17 +63,22 @@ class SafariSearchView(generics.ListAPIView):
         search_query = self.request.query_params.get('query', '')
         price_min = int(self.request.query_params.get('price_min', 400))
         price_max = int(self.request.query_params.get('price_max', 1500))
-        
+
+        s = Search(index='safari')
+        bool_query = Q()
+
         if search_query:
-            vector = SearchVector('tour_data', 'inclusions_data', 'getting_there_data', 'day_by_day')
-            query = SearchQuery(search_query)
-            return Safari.search_by_json_fields(vector=vector, query=query)
+            multi_match_query = Q('multi_match', query=search_query, fields=['name', 'location', 'description'])
+            bool_query &= multi_match_query
 
         if price_min or price_max:
             Safari.validate_price_range(price_min, price_max)
-            price_range = (price_min, 1000)
-            max_price_range = (600, price_max)
+            price_range = {'gte': price_min, 'lte': 1000}
+            max_price_range = {'gte': 600, 'lte': price_max}
+            price_query = Q('range', price=price_range) | Q('range', max_price=max_price_range)
+            bool_query = bool_query & price_query
 
-            return Safari.search_by_price_and_max_price(price_range, max_price_range)
-
-        return Safari.objects.none()
+        s = s.query(bool_query)
+        response = s.execute()
+        safari_ids = [hit.meta.id for hit in response]
+        return Safari.objects.filter(id__in=safari_ids)
