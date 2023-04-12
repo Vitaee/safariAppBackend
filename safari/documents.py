@@ -3,9 +3,6 @@ from elasticsearch.exceptions import NotFoundError
 from django_elasticsearch_dsl.registries import registry
 from .models import Safari
 
-# safari_index = Index('safari')
-
-
 
 @registry.register_document
 class SafariDocument(Document):
@@ -21,19 +18,46 @@ class SafariDocument(Document):
     max_price = fields.FloatField()
     ratingsQuantity = fields.IntegerField()
     ratingsAverage = fields.FloatField()
-    tour_data = fields.ObjectField()
-    inclusions_data = fields.ObjectField()
-    getting_there_data = fields.ObjectField()
-    day_by_day = fields.ObjectField()
+
+    tour_data = fields.NestedField(properties={
+        'overview': fields.NestedField(properties={
+            'route_data': fields.ObjectField(properties={
+                'days': fields.TextField(),
+                'days_route': fields.TextField(),
+            }),
+            'tour_features': fields.ObjectField(properties={
+                'title': fields.TextField(),
+                'description': fields.TextField(),
+            }),
+            'route_description': fields.TextField(),
+            'accommodation_and_meals': fields.NestedField(properties={
+                'day': fields.TextField(),
+                'meals': fields.TextField(),
+                'accommodation': fields.ObjectField(properties={
+                    'image': fields.TextField(),
+                    'title': fields.TextField(),
+                    'description': fields.TextField(),
+                })
+            }),
+            'activities_and_transportation': fields.TextField(),
+        }),
+    })
+
+    inclusions_data = fields.NestedField(properties={
+        'inclusions': fields.ObjectField(properties={
+            'included': fields.TextField(multi=True),
+            'excluded': fields.TextField(multi=True),
+        }),
+    })
+
+    getting_there_data = fields.TextField(multi=True)
+
+    day_by_day = fields.NestedField(properties={
+        'image': fields.TextField(),
+        'description': fields.TextField(),
+        'destination': fields.TextField(),
+    })
+
 
     class Django:
         model = Safari
-
-"""
-safari_index.document(Document)
-
-try:
-    safari_index.create()
-except NotFoundError as e:
-    print(f"Error creating index: {e}")
-"""

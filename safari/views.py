@@ -11,7 +11,7 @@ from drf_spectacular.types import OpenApiTypes
 from django.utils.decorators import method_decorator
 from elasticsearch_dsl import Q, Search, Nested
 from elasticsearch_dsl.query import MultiMatch
-
+from .documents import SafariDocument
 
 class SafariCreateView(APIView):
     serializer_class = SafariCreateSerializer
@@ -61,24 +61,35 @@ class SafariSearchView(generics.ListAPIView):
     
     def get_queryset(self):
         search_query = self.request.query_params.get('query', '')
-        price_min = int(self.request.query_params.get('price_min', 400))
-        price_max = int(self.request.query_params.get('price_max', 1500))
+        price_min = int(self.request.query_params.get('price_min', 0))
+        price_max = int(self.request.query_params.get('price_max', 0))
 
-        s = Search(index='safari')
         bool_query = Q()
 
         if search_query:
-            multi_match_query = Q('multi_match', query=search_query, fields=['name', 'location', 'description'])
-            bool_query &= multi_match_query
+            # multi_match_query = MultiMatch(query=search_query, fields=["*"], type="phrase")
+            # bool_query &= multi_match_query
+            nested_query = Q('nested', path='tour_data.*', query=Q('match', **{'tour_data.*': search_query}))
+            bool_query |= nested_query
 
-        if price_min or price_max:
+            nested_query = Q('nested', path='inclusions_data.inclusions.*', query=Q('match', **{'inclusions_data.inclusions.*': search_query}))
+            bool_query |= nested_query
+
+            nested_query = Q('nested', path='getting_there_data', query=Q('match', **{'getting_there_data': search_query}))
+            bool_query |= nested_query
+
+            nested_query = Q('nested', path='day_by_day.*', query=Q('match', **{'day_by_day.*': search_query}))
+            bool_query |= nested_query
+
+        if price_min > 0 or price_max > 0:
             Safari.validate_price_range(price_min, price_max)
             price_range = {'gte': price_min, 'lte': 1000}
             max_price_range = {'gte': 600, 'lte': price_max}
             price_query = Q('range', price=price_range) | Q('range', max_price=max_price_range)
             bool_query = bool_query & price_query
 
-        s = s.query(bool_query)
-        response = s.execute()
-        safari_ids = [hit.meta.id for hit in response]
+        result = SafariDocument.search().query(bool_query).execute()
+
+        safari_ids = [hit.meta.id for hit in result]
+
         return Safari.objects.filter(id__in=safari_ids)
