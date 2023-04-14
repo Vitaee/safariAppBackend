@@ -67,18 +67,19 @@ class SafariSearchView(generics.ListAPIView):
         bool_query = Q()
 
         if search_query:
-            # multi_match_query = MultiMatch(query=search_query, fields=["*"], type="phrase")
-            # bool_query &= multi_match_query
-            nested_query = Q('nested', path='tour_data.*', query=Q('match', **{'tour_data.*': search_query}))
+            nested_query = Q('nested', path='tour_data.*', query=Q('wildcard', **{'tour_data.*': f'*{search_query}*'}))
             bool_query |= nested_query
 
-            nested_query = Q('nested', path='inclusions_data.inclusions.*', query=Q('match', **{'inclusions_data.inclusions.*': search_query}))
+            nested_query = Q('nested', path='inclusions_data.inclusions.*', query=Q('wildcard', **{'inclusions_data.inclusions.*': f'*{search_query}*'}))
             bool_query |= nested_query
 
-            nested_query = Q('nested', path='getting_there_data', query=Q('match', **{'getting_there_data': search_query}))
+            nested_query = Q('nested', path='getting_there_data', query=Q('wildcard', **{'getting_there_data': f'*{search_query}*'}))
             bool_query |= nested_query
 
-            nested_query = Q('nested', path='day_by_day.*', query=Q('match', **{'day_by_day.*': search_query}))
+            nested_query = Q('nested', path='day_by_day.*', query=Q('wildcard', **{'day_by_day.*': f'*{search_query}*'}))
+            bool_query |= nested_query
+
+            nested_query = Q('nested', path='name',  query=Q('wildcard', **{'name' : f'*{search_query}*' }))
             bool_query |= nested_query
 
         if price_min > 0 or price_max > 0:

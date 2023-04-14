@@ -21,7 +21,7 @@ class TestUserView(APITestCase):
         response = self.client.get(url, HTTP_AUTHORIZATION=f'Bearer {self.token}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['username'])
-        self.assertEqual(json.loads(response.content), {'username': 'testuser'})
+        self.assertEqual(json.loads(response.content), {'email': None, 'profile_image': None, 'username': 'testuser'})
 
     def test_profile_detail_unauthorized(self):
         url = reverse('accounts:profile_view')
@@ -51,8 +51,7 @@ class TestUserView(APITestCase):
             'username': self.username,
             'password': self.password
         }
-        print("\n", self.username.strip(), "\n")
-        print(self.password)
+        
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.failUnless(response.data['access'])
