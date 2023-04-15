@@ -157,7 +157,7 @@ CACHES = {
 
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': 'http://172.17.0.6:9200/'
+        'hosts': "http://elastic:9200",
     },
 }
 

@@ -15,6 +15,6 @@ def trigger_scraper(self):
 
 @shared_task
 def cron_scraper():
-    req = requests.get(f"http://{settings.SCRAPER_URL}/api/scraper/run")
+    req = requests.get(f"http://{settings.SCRAPER_BASE_URL}/api/scraper/run")
     if req.status_code == 200:
         logger.debug("[LOG] Scraper is triggered by cron.")

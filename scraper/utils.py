@@ -16,29 +16,35 @@ class ScraperBot:
 
     async def scrape_resource_links(self):
         async with aiohttp.ClientSession() as session:
-            for counter in range(1, 2):
-                async with session.get(f"{self.base_url_home}{counter}") as response:
-                    html_content = await response.text()
-                    soup = BeautifulSoup(html_content, 'html.parser')
-                    
-                    tours = soup.find_all('li', attrs={'class': 'col-t-6'})
+            tasks = []
+            for counter in range(1, 3):
+                task = asyncio.create_task(self.scrape_page(session, counter))
+                tasks.append(task)
+            await asyncio.gather(*tasks)
 
-                    for tour in tours:
-                        url = tour.find('a', class_="list__item")['href']
-                        data_over_view = await self.scrape_overview_details(session, url.split('t')[-1])
-                        
-                        if data_over_view != 'Tour is unavailable':
-                            tour_id = url.split('t')[-1]
-                            tasks = [
-                                self.scrape_day_by_day_details(session, tour_id),
-                                self.scrape_inclusions_details(session, tour_id),
-                                self.scrape_getting_there_details(session, tour_id),
-                            ]
-                            data_day_by_day, data_inclusions, data_getting_there = await asyncio.gather(*tasks)
-                        
-                            data_merged =  data_over_view | { 'day_by_day': data_day_by_day } | { 'inclusions_data': data_inclusions } | { 'getting_there_data': data_getting_there }
-                            
-                            await sync_to_async(Safari.objects.create)(**data_merged)
+    async def scrape_page(self, session, page_number):
+        async with session.get(f"{self.base_url_home}{page_number}") as response:
+            html_content = await response.text()
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            tours = soup.find_all('li', attrs={'class': 'col-t-6'})
+
+            for tour in tours:
+                url = tour.find('a', class_="list__item")['href']
+                data_over_view = await self.scrape_overview_details(session, url.split('t')[-1])
+                
+                if data_over_view != 'Tour is unavailable':
+                    tour_id = url.split('t')[-1]
+                    tasks = [
+                        self.scrape_day_by_day_details(session, tour_id),
+                        self.scrape_inclusions_details(session, tour_id),
+                        self.scrape_getting_there_details(session, tour_id),
+                    ]
+                    data_day_by_day, data_inclusions, data_getting_there = await asyncio.gather(*tasks)
+                
+                    data_merged =  data_over_view | { 'day_by_day': data_day_by_day } | { 'inclusions_data': data_inclusions } | { 'getting_there_data': data_getting_there }
+                    
+                    await sync_to_async(Safari.objects.create)(**data_merged)
 
     async def scrape_overview_details(self, session, source_link_number):
         """
