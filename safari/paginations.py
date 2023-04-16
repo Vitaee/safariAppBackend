@@ -2,7 +2,7 @@ from rest_framework import pagination
 
 class SafariPagination(pagination.PageNumberPagination):
     page_size = 5
-    max_page_size = 10
+    max_page_size = 1000
     page_query_param = 'page'
 
     def get_cache_key(self, request, queryset, view):

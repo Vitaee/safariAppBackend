@@ -12,6 +12,8 @@ from django.utils.decorators import method_decorator
 from elasticsearch_dsl import Q, Search, Nested
 from elasticsearch_dsl.query import MultiMatch
 from .documents import SafariDocument
+from elasticsearch.helpers import scan
+
 
 class SafariCreateView(APIView):
     serializer_class = SafariCreateSerializer
@@ -29,7 +31,11 @@ class SafariAllView(ModelViewSet):
 
     @method_decorator(cache_page(60 * 15, key_prefix='safari')) # cache for 15 minutes
     def list(self, request, *args, **kwargs):
-        queryset = Safari.objects.all().order_by('-id')
+        results = SafariDocument.search().extra(size=100)
+        safari_ids = [r['id'] for r in results]
+        
+
+        queryset = Safari.objects.filter(id__in=safari_ids).order_by('id')
         page = self.paginate_queryset(queryset)
         serializer = SafariCreateSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
