@@ -97,6 +97,8 @@ volumes:
   static_volume:
   media_volume:
   redis_data:
+  elasticsearch-data:
+
 
 networks:
   app-network:
