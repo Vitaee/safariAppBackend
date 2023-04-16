@@ -674,6 +674,21 @@ six = "*"
 develop = ["coverage (<5.0.0)", "mock", "pytest (>=3.0.0)", "pytest-cov", "pytest-mock (<3.0.0)", "pytz", "sphinx", "sphinx-rtd-theme"]
 
 [[package]]
+name = "faker"
+version = "18.4.0"
+description = "Faker is a Python package that generates fake data for you."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "Faker-18.4.0-py3-none-any.whl", hash = "sha256:170ead9d0d140916168b142df69c44722b8f622ced2070802d0af9c476f0cb84"},
+    {file = "Faker-18.4.0.tar.gz", hash = "sha256:977ad0b7aa7a61ed57287d6a0723a827e9d3dd1f8cc82aaf08707f281b33bacc"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.4"
+
+[[package]]
 name = "frozenlist"
 version = "1.3.3"
 description = "A list-like structure which implements collections.abc.MutableSequence"
@@ -1453,4 +1468,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "e1e50bb6fe5cf1b4fdc50b9db36a66023cfd81c02ba4a70c80c8d8f4bed4244f"
+content-hash = "e7f05ea41d9665fdd1d28e0e821e4fc6769f997c9049ab0892e11b9312228bdf"

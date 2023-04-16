@@ -26,6 +26,7 @@ django-redis = "^5.2.0"
 elasticsearch-dsl = "^7.4.1"
 elasticsearch = "7.0.0"
 django-elasticsearch-dsl = "^7.3"
+faker = "^18.4.0"
 
 
 [build-system]
