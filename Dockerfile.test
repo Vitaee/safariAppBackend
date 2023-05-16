@@ -12,5 +12,4 @@ ENV PYTHONDONTWRITEBYTECODE 1
 RUN pip install poetry \
     && poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi \
-    && adduser --disabled-password --gecos "" celeryuser \
     && python manage.py collectstatic --noinput --clear --settings=safariBackend.settings.test 

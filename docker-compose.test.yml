@@ -10,7 +10,9 @@ services:
     command: >
       sh -c " python manage.py makemigrations --settings=safariBackend.settings.test &&
               python manage.py migrate --settings=safariBackend.settings.test && 
-              python manage.py runserver --settings=safariBackend.settings.test 0.0.0.0:6000"
+              python manage.py runserver --settings=safariBackend.settings.test 0.0.0.0:6000 &&
+              celery -A safariBackend worker --loglevel=info &&
+              celery -A safariBackend beat -l debug"
     environment:
       - STATIC_URL=/static/
       - STATIC_ROOT=/source/static/
@@ -28,35 +30,15 @@ services:
       - app-network
     restart: on-failure
 
-  celery_tasks:
-    user: celeryuser
-    build:
-      context: .
-      dockerfile: Dockerfile.test
-    command: celery -A safariBackend worker --loglevel=info
-    env_file:
-      - .env.test
-    networks:
-      - app-network
-    restart: on-failure
-  
-  celery_crons:
-    build:
-      context: .
-      dockerfile: Dockerfile.test
-    command: celery -A safariBackend beat -l debug
-    environment:
-      - CRON_USER_PASSWORD=password
-    env_file:
-      - .env.test
-    networks:
-      - app-network
-    restart: on-failure
-
   redis:
     image: redis:latest
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - app-network
 
@@ -85,8 +67,6 @@ services:
       - media_volume:/source/media
     depends_on:
       - web
-      - celery_tasks
-      - celery_crons
     networks:
       - app-network
     restart: on-failure
