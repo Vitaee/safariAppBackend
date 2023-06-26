@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.11
 
 EXPOSE 6000-6003
 
@@ -9,7 +9,10 @@ COPY . /source
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
-RUN pip install poetry \
-    && poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi \
-    && python manage.py collectstatic --noinput --clear --settings=safariBackend.settings.test 
+RUN pip install poetry
+
+RUN poetry config virtualenvs.create false
+
+RUN poetry install --no-interaction --no-ansi
+
+ENTRYPOINT ["./entrypoint_test.sh"]
