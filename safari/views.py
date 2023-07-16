@@ -1,10 +1,8 @@
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import status, generics
-from safari.models import Safari
-from safari.serializers import SafariCreateSerializer, SafariSearchSerializer
+from rest_framework import status, generics, viewsets, views, permissions
+from safari.models import Safari, SafariRatings
+from safari.serializers import SafariCreateSerializer, SafariSearchSerializer, SafariRatingsSerializer
 from safari.paginations import SafariPagination
-from rest_framework.viewsets import ModelViewSet
 from django.views.decorators.cache import cache_page
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view
 from drf_spectacular.types import OpenApiTypes
@@ -13,9 +11,10 @@ from elasticsearch_dsl import Q, Search, Nested
 from elasticsearch_dsl.query import MultiMatch
 from .documents import SafariDocument
 from elasticsearch.helpers import scan
+from accounts.models import User
 
 
-class SafariCreateView(APIView):
+class SafariCreateView(views.APIView):
     serializer_class = SafariCreateSerializer
 
     def post(self, request):
@@ -25,7 +24,7 @@ class SafariCreateView(APIView):
         return Response({'message': 'Success!'}, status=status.HTTP_201_CREATED)
 
 
-class SafariAllView(ModelViewSet):
+class SafariAllView(generics.ListAPIView):
     serializer_class = SafariCreateSerializer
     pagination_class = SafariPagination
 
@@ -96,7 +95,22 @@ class SafariSearchView(generics.ListAPIView):
             bool_query = bool_query & price_query
 
         result = SafariDocument.search().query(bool_query).execute()
-
+        # meta.highlight.to_dict()
         safari_ids = [hit.meta.id for hit in result]
 
         return Safari.objects.filter(id__in=safari_ids)
+    
+
+class SafariRatingView(viewsets.ModelViewSet):
+    serializer_class = SafariRatingsSerializer
+    queryset = Safari.objects.all()
+    permission_classes = [ permissions.AllowAny ]
+
+    def create(self, request, *args, **kwargs):
+        user = request.data['user']
+        request.data['user'] = User.objects.get(id=user)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

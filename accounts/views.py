@@ -1,5 +1,5 @@
-from accounts.serializers import UserSerializer, UserRegisterSerializer
-from rest_framework import status
+from accounts.serializers import UserSerializer, UserRegisterSerializer, UserFavouritesSerializer
+from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,13 +14,11 @@ class UserView(APIView):
     serializer_class = UserSerializer
 
     def get(self, request):
-        user = request.user
-        serializer = UserSerializer(user)
+        serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request):
-        user = request.user
-        serializer = UserSerializer(instance=user, data=request.data)
+        serializer = UserSerializer(instance=request.user, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -52,12 +50,7 @@ class UserRegisterView(APIView):
         except Exception as e:
             print(e)
             return Response({'message': 'Unexpected error while registering you!'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-class UserAllView(ModelViewSet):
-    permission_classes = []
-    serializer_class = UserSerializer
-    pagination_class = SafariPagination
-
-    def get_queryset(self):
-        return User.objects.all().order_by('id')
      
+class UserFavouritesView(viewsets.ModelViewSet):
+    serializer_class = UserFavouritesSerializer
+    permission_classes = [ AllowAny ]
