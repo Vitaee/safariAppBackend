@@ -9,5 +9,5 @@ urlpatterns = [
     path('refresh/token/', TokenRefreshView.as_view(), name="token_refresh" ),
     path('profile', views.UserView.as_view(),name='profile_view'),
     path('register', views.UserRegisterView.as_view(), name='sign_up'),
-    path('favourite', views.UserFavouritesView.as_view(), name="user_favs")
+    path('favourite', views.UserFavouritesView.as_view({'get': 'list'}), name="user_favs")
 ]
