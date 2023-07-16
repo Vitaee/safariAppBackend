@@ -6,7 +6,7 @@ authors = ["Can İlgu <canilguu@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 djangorestframework = "^3.14.0"
 psycopg2 = "^2.9.5"
 Django = "^4.1.7"
