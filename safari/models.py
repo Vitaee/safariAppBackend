@@ -2,6 +2,17 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.postgres.search import SearchRank
 from rest_framework.exceptions import ValidationError
+from django.conf import settings
+
+
+class SafariRatings(models.Model):
+    """
+    This model holds safari tour's ratings
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="User")
+    point = models.FloatField(verbose_name="Rating Point", blank=True)
+    comment = models.CharField(max_length=200, verbose_name="Rating Comment", blank=True)
+
 
 
 class Safari(models.Model):
@@ -16,6 +27,7 @@ class Safari(models.Model):
     inclusions_data = models.JSONField()
     getting_there_data = models.JSONField()
     day_by_day = models.JSONField()
+    ratings = models.ManyToManyField(SafariRatings, blank=True, verbose_name="User Ratings")
 
     class Meta:
         ordering = ["id"]

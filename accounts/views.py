@@ -1,5 +1,5 @@
-from accounts.serializers import UserSerializer, UserRegisterSerializer
-from rest_framework import status, generics, viewsets, views
+from accounts.serializers import UserSerializer, UserRegisterSerializer, UserFavouritesSerializer
+from rest_framework import status, generics, viewsets, views, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -14,9 +14,11 @@ class UserView(views.APIView):
 
     def get(self, request):
         serializer = UserSerializer(request.user)
+        serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request):
+        serializer = UserSerializer(instance=request.user, data=request.data)
         serializer = UserSerializer(instance=request.user, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -49,7 +51,7 @@ class UserRegisterView(generics.CreateAPIView):
         return Response({'refresh': str(tokens), 'access': str(tokens.access_token)}, status.HTTP_201_CREATED, headers=headers)
 
 
-class UserAllView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny,]
+     
+class UserFavouritesView(viewsets.ModelViewSet):
+    serializer_class = UserFavouritesSerializer
+    permission_classes = [ AllowAny ]
