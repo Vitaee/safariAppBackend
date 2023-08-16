@@ -40,10 +40,10 @@ INSTALLED_APPS = [
     'scraper.apps.ScraperConfig',
 
     'rest_framework',
-    'drf_spectacular',
     'django_cleanup',
     'django_redis',
-    'django_elasticsearch_dsl'
+    'django_elasticsearch_dsl',
+    'drf_yasg',
 
 ]
 
@@ -121,8 +121,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
 
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-
 }
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
@@ -132,6 +130,16 @@ SIMPLE_JWT = {
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} {levelname} {filename} {funcName} {lineno} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{asctime} {levelname} - {message}',
+            'style': '{',
+        },
+    },    
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
@@ -160,14 +168,7 @@ ELASTICSEARCH_DSL = {
     },
 }
 
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'safari API',
-    'DESCRIPTION': 'an API doc for safari app project',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    'COMPONENT_SPLIT_REQUEST': True
-    # OTHER SETTINGS
-}
+
 
 LOCALE_PATHS = os.path.join(BASE_DIR, 'locale/'),
 AWS_ACCESS_KEY_ID = config.get('AWS_ACCESS_KEY_ID')

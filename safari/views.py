@@ -6,8 +6,6 @@ from safari.serializers import SafariCreateSerializer, SafariSearchSerializer
 from safari.paginations import SafariPagination
 from rest_framework.viewsets import ModelViewSet
 from django.views.decorators.cache import cache_page
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter, extend_schema_view
-from drf_spectacular.types import OpenApiTypes
 from django.utils.decorators import method_decorator
 from elasticsearch_dsl import Q, Search, Nested
 from elasticsearch_dsl.query import MultiMatch
@@ -41,7 +39,7 @@ class SafariAllView(ModelViewSet):
         return self.get_paginated_response(serializer.data)
     
     
-@extend_schema_view(
+"""@extend_schema_view(
     get=extend_schema(
         parameters=[
              OpenApiParameter(
@@ -61,7 +59,7 @@ class SafariAllView(ModelViewSet):
             OpenApiParameter(name='query', description='Enter text to made search', type=str)
         ]
     )
-)
+)"""
 class SafariSearchView(generics.ListAPIView):
     serializer_class = SafariSearchSerializer
     
